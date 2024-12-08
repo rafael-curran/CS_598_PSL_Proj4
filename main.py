@@ -31,6 +31,9 @@ filtered_movies = movies[movies["FormattedMovieID"].isin(S_df.index)]
 
 sample_movies = filtered_movies.head(120) 
 
+ratings = pd.read_csv("https://liangfgithub.github.io/MovieData/ratings.dat?raw=true", sep='::', engine='python', header=None)
+ratings.columns = ['UserID', 'MovieID', 'Rating', 'Timestamp']
+
 def myIBCF(newuser):
     """
     Predicts ratings for movies not rated by a new user using Item-Based Collaborative Filtering (IBCF).
@@ -66,6 +69,19 @@ def myIBCF(newuser):
 
     recommendations = pd.Series(predictions, index=S_df.index)
     top_predictions = recommendations.sort_values(ascending=False).dropna().head(10)
+
+    if len(top_predictions) < 10:
+        five_star_reviews = ratings[ratings['Rating'] == 5]
+        five_star_counts = five_star_reviews.groupby('MovieID').size().reset_index(name='FiveStarCount')
+
+        popularity_ranking = pd.merge(five_star_counts, movies, on='MovieID')
+        popularity_ranking = popularity_ranking.sort_values(by='FiveStarCount', ascending=False)
+
+        unrated_popular_movies = [m for m in popularity_ranking['MovieID'] if m not in recommendations.index[~np.isnan(w)]]
+        additional_movies = popularity_ranking[popularity_ranking['MovieID'].isin(unrated_popular_movies)].head(10 - len(top_predictions))
+
+        additional_movies = pd.Series(additional_movies['MovieID'].values, index=additional_movies['MovieID'])
+        top_predictions = pd.concat([top_predictions, additional_movies])
 
     return top_predictions.index.tolist()
 
