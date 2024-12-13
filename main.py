@@ -5,8 +5,8 @@ import dash_bootstrap_components as dbc
 
 from dash.dependencies import Input, Output, State
 
-import os
-os.chdir("/home/rafaelcurran/mysite")
+#import os
+#os.chdir("/home/rafaelcurran/mysite")
 
 
 movies_url = "https://liangfgithub.github.io/MovieData/movies.dat?raw=true"
