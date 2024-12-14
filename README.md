@@ -10,7 +10,7 @@ If you want to run the application locally instead of using the deployed web app
 
 Install necessary packages
 ```shell
-pip install dash pandas plotly
+pip install dash
 ```
 
 Run the application
